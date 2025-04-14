@@ -372,22 +372,24 @@ async Task<Message> SendEmail(Customer customer)
 }
 
 async Task<Message> AddUser(User user)
-
 {
   try
   {
+    int? id;
     await using (var cmd = db.CreateCommand(
-                   "INSERT INTO users (firstname, lastname, email, company_id) VALUES ($1, $2, $3, $4)"))
+                   "INSERT INTO users (firstname, lastname, email, company_id) VALUES ($1, $2, $3, $4) RETURNING id"))
 
     {
       cmd.Parameters.AddWithValue(user.firstname);
       cmd.Parameters.AddWithValue(user.lastname);
       cmd.Parameters.AddWithValue(user.email);
       cmd.Parameters.AddWithValue(user.company_id);
-      await cmd.ExecuteNonQueryAsync();
+      // added returning id for endpoint testing
+      id = (int?)await cmd.ExecuteScalarAsync();
+      //await cmd.ExecuteNonQueryAsync();
     }
 
-    return new Message("User has been succefully added to database!");
+    return new Message("User has been successfully added to database!", id);
   }
   catch (Exception error)
   {
