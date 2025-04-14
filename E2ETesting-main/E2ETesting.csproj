@@ -28,10 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\TicTacToe\TicTacToe.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <SpecFlowFeatureFiles Remove="Features\Example.feature" />
     </ItemGroup>
 
