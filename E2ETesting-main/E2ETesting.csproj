@@ -37,6 +37,9 @@
       <Compile Update="Features\ScenarioForm.feature.cs">
         <DependentUpon>ScenarioForm.feature</DependentUpon>
       </Compile>
+      <Compile Update="Features\ScenarioChat.feature.cs">
+        <DependentUpon>ScenarioChat.feature</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

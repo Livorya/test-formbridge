@@ -19,7 +19,7 @@ public class ScenarioSteps
     public async Task Setup()
     {
         _playwright = await Playwright.CreateAsync();
-        _browser = await _playwright.Chromium.LaunchAsync(new() { Headless = false, SlowMo = 400 });
+        _browser = await _playwright.Chromium.LaunchAsync(new() { Headless = false, SlowMo = 500 });
         _context = await _browser.NewContextAsync();
         _page = await _context.NewPageAsync();
     }
@@ -197,5 +197,41 @@ public class ScenarioSteps
 
         // Close the alert
         await _lastDialog.AcceptAsync();
+    }
+
+    [Given(@"I am on the chat page")]
+    public async Task GivenIAmOnTheChatPage()
+    {
+        await _page.GotoAsync("http://localhost:5173/chat/14");
+    }
+
+    [When(@"I enter ""(.*)"" as the chat message")]
+    public async Task WhenIEnterAsTheChatMessage(string message)
+    {
+        await _page.FillAsync("input", message);
+    }
+
+    [When(@"I click the send icon")]
+    public async Task WhenIClickTheSendIcon()
+    {
+        await _page.Locator("img.sendbutton").ClickAsync();
+    }
+
+    [Then(@"I should see my message ""(.*)"" in the chat")]
+    public async Task ThenIShouldSeeMyMessageInTheChat(string message)
+    {
+        var successMessage = _page.Locator($"li > div:has-text(\"{message}\")").First;
+        // Wait for it to appear
+        await successMessage.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible, 
+            Timeout = 5000
+        });
+
+        var text = await successMessage.InnerTextAsync();
+        Assert.NotNull(text);
+        Assert.Equal(message, text);
+        
+        // confirm that the list item has customer styling
     }
 }
