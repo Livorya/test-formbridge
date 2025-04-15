@@ -34,6 +34,9 @@
     <ItemGroup>
       <Compile Remove="Features\Example.feature.cs" />
       <Compile Remove="Steps\Example.cs" />
+      <Compile Update="Features\ScenarioForm.feature.cs">
+        <DependentUpon>ScenarioForm.feature</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
