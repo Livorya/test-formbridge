@@ -217,8 +217,8 @@ public class ScenarioSteps
         await _page.Locator("img.sendbutton").ClickAsync();
     }
 
-    [Then(@"I should see my message ""(.*)"" in the chat")]
-    public async Task ThenIShouldSeeMyMessageInTheChat(string message)
+    [Then(@"I should see my message ""(.*)"" in the chat with customer styling")]
+    public async Task ThenIShouldSeeMyMessageInTheChatWithCustomerStyling(string message)
     {
         // I only check for the first occurrence of the message and the idea is to enter a unique message
         var successMessage = _page.Locator($"li > div:has-text(\"{message}\")").First;
@@ -249,8 +249,8 @@ public class ScenarioSteps
         await starButton.ClickAsync();
     }
 
-    [Then(@"the (.*) stars should be selected")]
-    public async Task ThenTheStarsShouldBeSelected(int rating)
+    [Then(@"I should see the (.*) stars selected")]
+    public async Task ThenIShouldSeeTheStarsSelected(int rating)
     {
         var selectedStars = _page.Locator("div.stars button.star.selected");
         var count = await selectedStars.CountAsync();
@@ -262,5 +262,101 @@ public class ScenarioSteps
 
         Assert.Equal(rating, count);
         Assert.Contains("selected", classList);
+    }
+    
+    [Given(@"I am logged in as ""(.*)""")]
+    public async Task GivenIAmLoggedInAs(string email)
+    {
+        await GivenIAmOnTheLoginPage();
+        await WhenIEnterAsTheEmail(email);
+        // all test accounts have the same password
+        await WhenIEnterAsThePassword("a");
+        await WhenIClickTheButton();
+        await ThenIShouldRedirectToTheSupportDashboard();
+    }
+
+    [Then(@"I should see my message ""(.*)"" in the chat with support styling")]
+    public async Task ThenIShouldSeeMyMessageInTheChatWithSupportStyling(string message)
+    {
+        // I only check for the first occurrence of the message and the idea is to enter a unique message
+        var successMessage = _page.Locator($"li > div:has-text(\"{message}\")").First;
+        // Wait for it to appear
+        await successMessage.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible, 
+            Timeout = 5000
+        });
+        // need the parent li element to check if th message has customer styling
+        var liOfMessage = successMessage.Locator("..");
+        var classList = await liOfMessage.GetAttributeAsync("class");
+        
+        var text = await successMessage.InnerTextAsync();
+        Assert.NotNull(text);
+        Assert.Equal(message, text);
+        
+        Assert.Contains("support", classList);
+    }
+
+    [Given(@"I am on the support dashboard page")]
+    public async Task GivenIAmOnTheSupportDashboardPage()
+    {
+        await _page.GotoAsync("http://localhost:5173/support");
+    }
+
+    [When(@"I click the chat icon for the row with the email ""(.*)""")]
+    public async Task WhenIClickTheChatIconForTheRowWithTheEmail(string email)
+    {
+        // there might be more tickets with the same email, so I locate all rows containing the email
+        var matchingRows = _page.Locator("table tr", new PageLocatorOptions { HasTextString = email });
+        // and selects the first one for this test
+        // var firstRow = matchingRows.Nth(0);
+        
+        // and select the last one for this test
+        int totalMatches = await matchingRows.CountAsync();
+        var lastRow = matchingRows.Nth(totalMatches - 1);
+
+        var chatIcon = lastRow.Locator("img.ticket-chaticon");
+
+        await chatIcon.ClickAsync();
+    }
+
+    [Then(@"I should redirect to the chat page for customer with ""(.*)"" name")]
+    public async Task ThenIShouldRedirectToTheChatPageForCustomerWithName(string name)
+    {
+        await _page.WaitForURLAsync("http://localhost:5173/chat/14");
+        var welcomeMessage = _page.Locator($"div.text strong:has-text(\"{name}\")");
+        var actualText = await welcomeMessage.InnerTextAsync();
+        Assert.Equal($"Welcome {name}!", actualText);
+    }
+
+    [When(@"I click the resolve icon for the row with the email ""(.*)"" and message ""(.*)""")]
+    public async Task WhenIClickTheResolveIconForTheRowWithTheEmailAndMessage(string email, string message)
+    {
+        // check for both the email and the message because the same customer can have multiple tickets
+        var row = _page.Locator("tr", new PageLocatorOptions { HasTextString = email });
+        // targets the first occurrence of the email with the corresponding message
+        var targetRow = row.Filter(new LocatorFilterOptions { HasTextString = message }).First;
+        var resolveIcon = targetRow.Locator("img.ticket-checkicon");
+        await resolveIcon.ClickAsync();
+    }
+
+    [Then(@"I should see the status icon as ""(.*)"" for the row with the email ""(.*)"" and message ""(.*)""")]
+    public async Task ThenIShouldSeeTheStatusIconAsForTheRowWithTheEmailAndMessage(string status, string email, string message)
+    {
+        // find the row from the last step
+        var row = _page.Locator("tr", new PageLocatorOptions { HasTextString = email });
+        var targetRow = row.Filter(new LocatorFilterOptions { HasTextString = message }).First;
+        
+        var statusIcon = targetRow.Locator(".status-icon");
+        
+        await statusIcon.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 5000
+        });
+        
+        var src = await statusIcon.GetAttributeAsync("src");
+
+        Assert.Contains(status, src);
     }
 }
