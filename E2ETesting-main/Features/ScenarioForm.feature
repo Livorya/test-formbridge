@@ -1,4 +1,4 @@
-﻿Feature: Fill out form as a customer
+﻿Feature: Form
 
     Scenario: Navigate to company selector page
         Given I am on the startpage
