@@ -40,6 +40,9 @@
       <Compile Update="Features\ScenarioChat.feature.cs">
         <DependentUpon>ScenarioChat.feature</DependentUpon>
       </Compile>
+      <Compile Update="Features\ScenarioAdmin.feature.cs">
+        <DependentUpon>ScenarioAdmin.feature</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
