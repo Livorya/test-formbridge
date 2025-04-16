@@ -220,6 +220,7 @@ public class ScenarioSteps
     [Then(@"I should see my message ""(.*)"" in the chat")]
     public async Task ThenIShouldSeeMyMessageInTheChat(string message)
     {
+        // I only check for the first occurrence of the message and the idea is to enter a unique message
         var successMessage = _page.Locator($"li > div:has-text(\"{message}\")").First;
         // Wait for it to appear
         await successMessage.WaitForAsync(new LocatorWaitForOptions
@@ -227,11 +228,39 @@ public class ScenarioSteps
             State = WaitForSelectorState.Visible, 
             Timeout = 5000
         });
-
+        // need the parent li element to check if th message has customer styling
+        var liOfMessage = successMessage.Locator("..");
+        var classList = await liOfMessage.GetAttributeAsync("class");
+        
         var text = await successMessage.InnerTextAsync();
         Assert.NotNull(text);
         Assert.Equal(message, text);
         
-        // confirm that the list item has customer styling
+        Assert.Contains("customer", classList);
+    }
+
+    [When(@"I click the (.*) star")]
+    public async Task WhenIClickTheStar(int rating)
+    {
+        int totalStars = 5;
+        int domIndex = totalStars - rating;
+        
+        var starButton = _page.Locator("div.stars button").Nth(domIndex);
+        await starButton.ClickAsync();
+    }
+
+    [Then(@"the (.*) stars should be selected")]
+    public async Task ThenTheStarsShouldBeSelected(int rating)
+    {
+        var selectedStars = _page.Locator("div.stars button.star.selected");
+        var count = await selectedStars.CountAsync();
+        
+        int totalStars = 5;
+        int domIndex = totalStars - rating;
+        var theStar = _page.Locator("div.stars button").Nth(domIndex);
+        var classList = await theStar.GetAttributeAsync("class");
+
+        Assert.Equal(rating, count);
+        Assert.Contains("selected", classList);
     }
 }
