@@ -40,9 +40,9 @@ public class ScenarioSteps
     [When(@"I enter ""(.*)"" as the email")]
     public async Task WhenIEnterAsTheEmail(string email)
     {
-        // have two different fields (Login & Form) that uses email input field with different selectors
-        // now I have one method for both (this works because they are on separate pages)
-        var emailField = _page.Locator("input[name='email'], input#email");
+        // have three different fields (Login & Form & Add User) that uses email input field with different selectors
+        // now I have one method for all (this works because they are all on separate pages)
+        var emailField = _page.Locator("input[name='email'], input#email, input[placeholder='Email']");
         await emailField.First.FillAsync(email);
     }
 
@@ -149,13 +149,19 @@ public class ScenarioSteps
     [When(@"I enter ""(.*)"" as the firstname")]
     public async Task WhenIEnterAsTheFirstname(string firstname)
     {
-        await _page.FillAsync("input[id=firstname]", firstname);
+        // have two different fields (Form & Add User) that uses firstname input field with different selectors
+        // now I have one method for all (this works because they are all on separate pages)
+        var nameField = _page.Locator("input[id=firstname], input[placeholder='First name']");
+        await nameField.First.FillAsync(firstname);
     }
 
     [When(@"I enter ""(.*)"" as the lastname")]
     public async Task WhenIEnterAsTheLastname(string lastname)
     {
-        await _page.FillAsync("input[id=lastname]", lastname);
+        // have two different fields (Form & Add User) that uses firstname input field with different selectors
+        // now I have one method for all (this works because they are all on separate pages)
+        var nameField = _page.Locator("input[id=lastname], input[placeholder='Last name']");
+        await nameField.First.FillAsync(lastname);
     }
 
     [When(@"I check the ""(.*)"" radiobutton")]
@@ -272,7 +278,6 @@ public class ScenarioSteps
         // all test accounts have the same password
         await WhenIEnterAsThePassword("a");
         await WhenIClickTheButton();
-        await ThenIShouldRedirectToTheSupportDashboard();
     }
 
     [Then(@"I should see my message ""(.*)"" in the chat with support styling")]
@@ -358,5 +363,50 @@ public class ScenarioSteps
         var src = await statusIcon.GetAttributeAsync("src");
 
         Assert.Contains(status, src);
+    }
+
+    [Given(@"I am on the admin dashboard page")]
+    public async Task GivenIAmOnTheAdminDashboardPage()
+    {
+        await _page.GotoAsync("http://localhost:5173/admin");
+    }
+
+    [When(@"I click the ""(.*)"" button in the menu")]
+    public async Task WhenIClickTheButtonInTheMenu(string buttonName)
+    {
+        await WhenIClickTheButton(buttonName);
+        
+        var addUserRow = _page.Locator("tr#add_user");
+
+        await addUserRow.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 5000
+        });
+
+        Assert.True(await addUserRow.IsVisibleAsync());
+    }
+    
+    [When(@"I click the checkmark button")]
+    public async Task WhenIClickTheCheckmarkButton()
+    {
+        var button = _page.Locator("tr#add_user > td.table-actions-admin > img");
+        await button.ClickAsync();
+    }
+
+    [Then(@"I should see the new user with the email ""(.*)""")]
+    public async Task ThenIShouldSeeTheNewUserWithTheEmail(string email)
+    {
+        var emailCell = _page.Locator($"td:has-text(\"{email}\")");
+        await emailCell.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 5000
+        });
+        // assert it's actually found
+        Assert.True(await emailCell.IsVisibleAsync());
+        // assert that the text found matches the email
+        var text = await emailCell.InnerTextAsync();
+        Assert.Equal(email, text);
     }
 }
