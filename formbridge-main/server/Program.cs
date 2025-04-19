@@ -409,13 +409,16 @@ async Task DeleteUser(int user_id)
 
 async Task<Message> SetPassword(LoginRequest newPassword)
 {
-  await using (var cmd = db.CreateCommand("UPDATE users SET password = $2 WHERE email = $1"))
+  int? id;
+  await using (var cmd = db.CreateCommand("UPDATE users SET password = $2 WHERE email = $1 RETURNING id"))
   {
     cmd.Parameters.AddWithValue(newPassword.Email);
     cmd.Parameters.AddWithValue(newPassword.Password);
-    await cmd.ExecuteNonQueryAsync();
+    // added returning id for endpoint testing
+    id = (int?)await cmd.ExecuteScalarAsync();
+    //await cmd.ExecuteNonQueryAsync();
   }
-  return new Message("Password updated successfully");
+  return new Message("Password updated successfully", id);
 }
 
 async Task SendWelcomeEmail(SupportAgent agent)
