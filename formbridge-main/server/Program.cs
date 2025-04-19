@@ -331,7 +331,7 @@ async Task<Message> SendMessage(Chat chat)
       await cmd.ExecuteNonQueryAsync();
     }
 
-    return new Message("Message has been succefully added to database!");
+    return new Message("Message has been successfully added to database!");
   }
   catch (Exception error)
   {
