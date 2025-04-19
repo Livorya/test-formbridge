@@ -35,11 +35,11 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
       - name: Install dotnet project dependencies
-        run: cd formbridge-main/server && dotnet restore
+        run: cd server && dotnet restore
       - name: Build
-        run: cd formbridge-main/server && dotnet build
+        run: cd server && dotnet build
       - name: Start Server
-        run: cd formbridge-main/server && nohup dotnet run &
+        run: cd server && nohup dotnet run &
       - name: Run API-Tests
         run: newman run api-test/API-test.postman_collection.json -e api-test/API-test-Environment.postman_environment.json --bail
 
