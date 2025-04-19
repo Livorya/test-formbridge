@@ -507,4 +507,4 @@ dist-ssr
 *.sw?
 
 # Database local
-server/Credentials.cs
+# server/Credentials.cs
