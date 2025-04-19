@@ -1,0 +1,2082 @@
+{
+	"info": {
+		"_postman_id": "3b0cd7ab-39d6-4b71-bf1a-6d69fdabeae3",
+		"name": "API-test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23896973"
+	},
+	"item": [
+		{
+			"name": "Base Requests",
+			"item": [
+				{
+					"name": "Authenticate",
+					"item": [
+						{
+							"name": "Get Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logged in\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response has expected user properties\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\");\r",
+											"        pm.expect(jsonData.role).to.be.oneOf([\"ADMIN\", \"SUPPORT\"]); \r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 404 when no one is logged in\", function () {\r",
+											"        pm.response.to.have.status(404);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No one is logged in.\");\r",
+											"    });\r",
+											"} \r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"   pm.test(\"Status code is 200 when login is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response contains all expected user fields\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\r",
+											"            \"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\"\r",
+											"        );\r",
+											"    });\r",
+											"    const id = pm.response.json().company_id;\r",
+											"    console.log(\"company id: \", id);\r",
+											"    pm.environment.set(\"company_id\", id);\r",
+											"} else {\r",
+											"   pm.test(\"Status code is 400 when already logged in\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Someone is already logged in.\");\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"admin1\",\r\n    \"password\": \"a\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logout is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response message confirms logout\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Logged out.\");\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 409 when no login session exists\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message indicates no login found\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No login found.\");\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Forms",
+					"item": [
+						{
+							"name": "Get Forms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/forms",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"forms"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Chats",
+					"item": [
+						{
+							"name": "Get Messages by ticket id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response is an array\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"});\r",
+											"\r",
+											"if (pm.response.json().length > 0) {\r",
+											"    pm.test(\"Messages contain expected fields\", function () {\r",
+											"        const message = pm.response.json()[0];  // Check the first one\r",
+											"        pm.expect(message).to.have.all.keys(\r",
+											"            \"id\", \"ticket_id\", \"support_id\", \"created_at\", \"message\",\r",
+											"            \"from_support\", \"company_name\", \"firstname\", \"lastname\",\r",
+											"            \"ticket_message\", \"from_ai\"\r",
+											"        );\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"No messages found for this ticket\", function () {\r",
+											"        pm.expect(pm.response.json().length).to.eql(0);\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Message by ticket id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ticket_id\": {{ticket_id}},\r\n    \"support_id\": 0,\r\n    \"message\": \"Testing Postman!\",\r\n    \"from_support\": false,\r\n    \"from_ai\": false\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Get Users by company id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is valid\", function () {\r",
+											"    pm.expect([200, 403, 401]).to.include(pm.response.code);\r",
+											"});\r",
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Response is an array of users\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 403) {\r",
+											"    pm.test(\"403 Forbidden - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 401) {\r",
+											"    pm.test(\"401 Unauthorized - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is valid\", function () {\r",
+											"    pm.expect([200, 403, 401]).to.include(pm.response.code);\r",
+											"});\r",
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    const jsonData = pm.response.json();\r",
+											"\r",
+											"    if (jsonData.id === 0) {\r",
+											"        pm.test(\"Duplicate user error detected\", function () {\r",
+											"            pm.expect(jsonData.message).to.include(\"duplicerat nyckelvärde\");\r",
+											"            pm.expect(jsonData.message).to.include(\"users_email_key\");\r",
+											"        });\r",
+											"    } else {\r",
+											"        pm.test(\"User added successfully\", function () {\r",
+											"            pm.expect(jsonData.message).to.eql(\"User has been successfully added to database!\");\r",
+											"            pm.expect(jsonData.id).to.be.a(\"number\");\r",
+											"            pm.expect(jsonData.id).to.be.above(0);\r",
+											"        });\r",
+											"        const userId = pm.response.json().id;\r",
+											"        console.log(\"user id: \", userId);\r",
+											"        pm.environment.set(\"user_id\", userId);\r",
+											"    }\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 403) {\r",
+											"    pm.test(\"403 Forbidden - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 401) {\r",
+											"    pm.test(\"401 Unauthorized - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Postman\",\r\n    \"lastname\": \"Test\",\r\n    \"email\": \"postman@test.test\",\r\n    \"company_id\": {{company_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"} else if (pm.response.code === 403) {\r",
+											"    pm.test(\"Status code is 403\", function () {\r",
+											"        pm.response.to.have.status(403);\r",
+											"    });\r",
+											"} else {\r",
+											"        pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/{{user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"{{user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set Password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Response contains a message field\", function () {\r",
+											"    pm.expect(jsonData).to.have.property(\"message\", \"Password updated successfully\");\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"});\r",
+											"\r",
+											"if (jsonData.id === null) {\r",
+											"    pm.test(\"No user found to update password\", function () {\r",
+											"        pm.expect(jsonData.id).to.eql(null);\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Password updated for user, valid user ID returned\", function () {\r",
+											"        pm.expect(jsonData.id).to.be.a(\"number\");\r",
+											"        pm.expect(jsonData.id).to.be.above(0); \r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"postman@test.test\",\r\n    \"password\": \"a\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/setpassword",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"setpassword"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Tickets",
+					"item": [
+						{
+							"name": "Get Tickets by company id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response is an array of tickets\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.be.an(\"array\");\r",
+											"\r",
+											"        if (jsonData.length > 0) {\r",
+											"            const ticket = jsonData[0];\r",
+											"            pm.expect(ticket).to.have.all.keys(\r",
+											"                \"id\", \"firstname\", \"lastname\", \"email\",\r",
+											"                \"message\", \"subject\", \"created_at\", \"resolved\",\r",
+											"                \"rating\", \"company_id\", \"company_name\"\r",
+											"            );\r",
+											"        }\r",
+											"    });\r",
+											"\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/tickets/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Post Ticket by company id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"const id = pm.response.json().id;\r",
+											"console.log(\"ticket id: \", id);\r",
+											"pm.environment.set(\"ticket_id\", id);\r",
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Response has success message\", function () {\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"    pm.expect(jsonData.message).to.eql(`Ticket ${id} has been succefully added to database!`);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has valid id\", function () {\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    pm.expect(jsonData.id).to.be.a(\"number\");\r",
+											"    pm.expect(jsonData.id).to.be.above(0);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"packages": {},
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Post\", \r\n    \"lastname\": \"Man\", \r\n    \"email\": \"man@test.test\", \r\n    \"message\": \"Testing adding ticket in Postman!\", \r\n    \"subject\": \"service\", \r\n    \"company_id\": {{company_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/tickets/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get single Ticket",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/tickets/{{ticket_id}}/single",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{ticket_id}}",
+										"single"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Resolve Ticket",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											" pm.test(\"Body should be empty\", function () {\r",
+											"    pm.expect(pm.response.text()).to.eql('');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/tickets/{{ticket_id}}/resolve",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{ticket_id}}",
+										"resolve"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Emails",
+					"item": [
+						{
+							"name": "Send Email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Post\",\r\n    \"lastname\": \"Man\",\r\n    \"email\": \"man@test.test\",\r\n    \"ticket_id\": {{ticket_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/sendemail/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"sendemail",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Welcome Email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"postman@test.test\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/sendwelcomeemail",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"sendwelcomeemail"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Ratings",
+					"item": [
+						{
+							"name": "Submit Rating",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"rating\": 5, \r\n    \"ticket_id\": {{ticket_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/ratings/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"ratings",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Model Files",
+					"item": [
+						{
+							"name": "Get Model File by company id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/ai/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"ai",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Model File by company id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"company_id\": {{company_id}},\r\n    \"modelfile\": \"New and improved after Postman Test!\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/ai/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"ai",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Test Flows",
+			"item": [
+				{
+					"name": "Customer - fill out form and enter chat",
+					"item": [
+						{
+							"name": "Get Login Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logged in\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response has expected user properties\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\");\r",
+											"        pm.expect(jsonData.role).to.be.oneOf([\"ADMIN\", \"SUPPORT\"]); \r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 404 when no one is logged in\", function () {\r",
+											"        pm.response.to.have.status(404);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No one is logged in.\");\r",
+											"    });\r",
+											"} \r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Forms Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/forms",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"forms"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Post Ticket by company id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"const id = pm.response.json().id;\r",
+											"console.log(\"ticket id: \", id);\r",
+											"pm.environment.set(\"ticket_id\", id);\r",
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Response has success message\", function () {\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"    pm.expect(jsonData.message).to.eql(`Ticket ${id} has been succefully added to database!`);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has valid id\", function () {\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    pm.expect(jsonData.id).to.be.a(\"number\");\r",
+											"    pm.expect(jsonData.id).to.be.above(0);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"New\", \r\n    \"lastname\": \"Test\", \r\n    \"email\": \"api@new.test\", \r\n    \"message\": \"New Test of adding ticket in Postman!\", \r\n    \"subject\": \"service\", \r\n    \"company_id\": 2\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/tickets/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Email Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"New\",\r\n    \"lastname\": \"Test\",\r\n    \"email\": \"api@new.test\",\r\n    \"ticket_id\": {{ticket_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/sendemail/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"sendemail",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Messages by ticket id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response is an array\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"});\r",
+											"\r",
+											"if (pm.response.json().length > 0) {\r",
+											"    pm.test(\"Messages contain expected fields\", function () {\r",
+											"        const message = pm.response.json()[0];  // Check the first one\r",
+											"        pm.expect(message).to.have.all.keys(\r",
+											"            \"id\", \"ticket_id\", \"support_id\", \"created_at\", \"message\",\r",
+											"            \"from_support\", \"company_name\", \"firstname\", \"lastname\",\r",
+											"            \"ticket_message\", \"from_ai\"\r",
+											"        );\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"No messages found for this ticket\", function () {\r",
+											"        pm.expect(pm.response.json().length).to.eql(0);\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Message by ticket id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ticket_id\": {{ticket_id}},\r\n    \"support_id\": 0,\r\n    \"message\": \"New Test of Postman!\",\r\n    \"from_support\": false,\r\n    \"from_ai\": false\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Submit Rating Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"rating\": 3, \r\n    \"ticket_id\": {{ticket_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/ratings/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"ratings",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Support - look at tickets, enter chat and resolve chat",
+					"item": [
+						{
+							"name": "Login Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"   pm.test(\"Status code is 200 when login is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response contains all expected user fields\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\r",
+											"            \"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\"\r",
+											"        );\r",
+											"    });\r",
+											"    const id = pm.response.json().company_id;\r",
+											"    console.log(\"company id: \", id);\r",
+											"    pm.environment.set(\"company_id\", id);\r",
+											"} else {\r",
+											"   pm.test(\"Status code is 400 when already logged in\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Someone is already logged in.\");\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"support2\",\r\n    \"password\": \"a\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Login Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logged in\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response has expected user properties\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\");\r",
+											"        pm.expect(jsonData.role).to.be.oneOf([\"ADMIN\", \"SUPPORT\"]); \r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 404 when no one is logged in\", function () {\r",
+											"        pm.response.to.have.status(404);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No one is logged in.\");\r",
+											"    });\r",
+											"} \r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Tickets by company id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response is an array of tickets\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.be.an(\"array\");\r",
+											"\r",
+											"        if (jsonData.length > 0) {\r",
+											"            const ticket = jsonData[0];\r",
+											"            pm.expect(ticket).to.have.all.keys(\r",
+											"                \"id\", \"firstname\", \"lastname\", \"email\",\r",
+											"                \"message\", \"subject\", \"created_at\", \"resolved\",\r",
+											"                \"rating\", \"company_id\", \"company_name\"\r",
+											"            );\r",
+											"        }\r",
+											"    });\r",
+											"\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/tickets/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Messages by ticket id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response is an array\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");\r",
+											"});\r",
+											"\r",
+											"if (pm.response.json().length > 0) {\r",
+											"    pm.test(\"Messages contain expected fields\", function () {\r",
+											"        const message = pm.response.json()[0];  // Check the first one\r",
+											"        pm.expect(message).to.have.all.keys(\r",
+											"            \"id\", \"ticket_id\", \"support_id\", \"created_at\", \"message\",\r",
+											"            \"from_support\", \"company_name\", \"firstname\", \"lastname\",\r",
+											"            \"ticket_message\", \"from_ai\"\r",
+											"        );\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"No messages found for this ticket\", function () {\r",
+											"        pm.expect(pm.response.json().length).to.eql(0);\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Message by ticket id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ticket_id\": {{ticket_id}},\r\n    \"support_id\": {{user_id}},\r\n    \"message\": \"New Support Test of Postman!\",\r\n    \"from_support\": true,\r\n    \"from_ai\": false\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/messages/{{ticket_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"messages",
+										"{{ticket_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Resolve Ticket Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											" pm.test(\"Body should be empty\", function () {\r",
+											"    pm.expect(pm.response.text()).to.eql('');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/tickets/{{ticket_id}}/resolve",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"tickets",
+										"{{ticket_id}}",
+										"resolve"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logout is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response message confirms logout\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Logged out.\");\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 409 when no login session exists\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message indicates no login found\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No login found.\");\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Admin - look at users, add a user and delete user",
+					"item": [
+						{
+							"name": "Login Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"   pm.test(\"Status code is 200 when login is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response contains all expected user fields\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\r",
+											"            \"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\"\r",
+											"        );\r",
+											"    });\r",
+											"    const id = pm.response.json().company_id;\r",
+											"    console.log(\"company id: \", id);\r",
+											"    pm.environment.set(\"company_id\", id);\r",
+											"} else {\r",
+											"   pm.test(\"Status code is 400 when already logged in\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Someone is already logged in.\");\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"admin2\",\r\n    \"password\": \"a\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Login Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logged in\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response has expected user properties\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.all.keys(\"id\", \"firstname\", \"lastname\", \"email\", \"password\", \"company_id\", \"role\", \"company_name\");\r",
+											"        pm.expect(jsonData.role).to.be.oneOf([\"ADMIN\", \"SUPPORT\"]); \r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 404 when no one is logged in\", function () {\r",
+											"        pm.response.to.have.status(404);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message is correct\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No one is logged in.\");\r",
+											"    });\r",
+											"} \r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Users by company id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is valid\", function () {\r",
+											"    pm.expect([200, 403, 401]).to.include(pm.response.code);\r",
+											"});\r",
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Response is an array of users\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.be.an(\"array\");\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 403) {\r",
+											"    pm.test(\"403 Forbidden - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 401) {\r",
+											"    pm.test(\"401 Unauthorized - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"{{company_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add User Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is valid\", function () {\r",
+											"    pm.expect([200, 403, 401]).to.include(pm.response.code);\r",
+											"});\r",
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    const jsonData = pm.response.json();\r",
+											"\r",
+											"    if (jsonData.id === 0) {\r",
+											"        pm.test(\"Duplicate user error detected\", function () {\r",
+											"            pm.expect(jsonData.message).to.include(\"duplicerat nyckelvärde\");\r",
+											"            pm.expect(jsonData.message).to.include(\"users_email_key\");\r",
+											"        });\r",
+											"    } else {\r",
+											"        pm.test(\"User added successfully\", function () {\r",
+											"            pm.expect(jsonData.message).to.eql(\"User has been successfully added to database!\");\r",
+											"            pm.expect(jsonData.id).to.be.a(\"number\");\r",
+											"            pm.expect(jsonData.id).to.be.above(0);\r",
+											"        });\r",
+											"        const userId = pm.response.json().id;\r",
+											"        console.log(\"user id: \", userId);\r",
+											"        pm.environment.set(\"user_id\", userId);\r",
+											"    }\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 403) {\r",
+											"    pm.test(\"403 Forbidden - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"if (pm.response.code === 401) {\r",
+											"    pm.test(\"401 Unauthorized - body should be empty\", function () {\r",
+											"        pm.expect(pm.response.text()).to.eql('');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"New\",\r\n    \"lastname\": \"Test\",\r\n    \"email\": \"postman@api.test\",\r\n    \"company_id\": {{company_id}}\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Welcome Email Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"packages": {},
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"postman@api.test\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/sendwelcomeemail",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"sendwelcomeemail"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User by id Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"} else if (pm.response.code === 403) {\r",
+											"    pm.test(\"Status code is 403\", function () {\r",
+											"        pm.response.to.have.status(403);\r",
+											"    });\r",
+											"} else {\r",
+											"        pm.test(\"Status code is 401\", function () {\r",
+											"        pm.response.to.have.status(401);\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/{{user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"{{user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"if (pm.response.code === 200) {\r",
+											"    pm.test(\"Status code is 200 when logout is successful\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Response message confirms logout\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"Logged out.\");\r",
+											"    });\r",
+											"} else {\r",
+											"    pm.test(\"Status code is 409 when no login session exists\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"    });\r",
+											"\r",
+											"    pm.test(\"Error message indicates no login found\", function () {\r",
+											"        const jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData).to.have.property(\"message\", \"No login found.\");\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
