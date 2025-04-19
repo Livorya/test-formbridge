@@ -41,7 +41,7 @@ jobs:
       - name: Start Server
         run: cd formbridge-main/server && nohup dotnet run &
       - name: Run API-Tests
-        run: newman run api-test/API-test.postman_collection.json -e api-test/API-test-Environment.json --bail
+        run: newman run api-test/API-test.postman_collection.json -e api-test/API-test-Environment.postman_environment.json --bail
 
   gui_tests:
     runs-on: ubuntu-latest
