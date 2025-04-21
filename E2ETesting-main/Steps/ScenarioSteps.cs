@@ -19,7 +19,7 @@ public class ScenarioSteps
     public async Task Setup()
     {
         _playwright = await Playwright.CreateAsync();
-        _browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true, SlowMo = 500 });
+        _browser = await _playwright.Chromium.LaunchAsync(new() { Headless = false, SlowMo = 500 });
         _context = await _browser.NewContextAsync();
         _page = await _context.NewPageAsync();
     }
@@ -208,6 +208,7 @@ public class ScenarioSteps
     [Given(@"I am on the chat page")]
     public async Task GivenIAmOnTheChatPage()
     {
+        // I have chosen a known chat id from the default test data
         await _page.GotoAsync("http://localhost:5173/chat/9");
     }
 
@@ -328,7 +329,8 @@ public class ScenarioSteps
     [Then(@"I should redirect to the chat page for customer with ""(.*)"" name")]
     public async Task ThenIShouldRedirectToTheChatPageForCustomerWithName(string name)
     {
-        await _page.WaitForURLAsync("http://localhost:5173/chat/14");
+        // I have chosen a known chat id from the default test data
+        await _page.WaitForURLAsync("http://localhost:5173/chat/9");
         var welcomeMessage = _page.Locator($"div.text strong:has-text(\"{name}\")");
         var actualText = await welcomeMessage.InnerTextAsync();
         Assert.Equal($"Welcome {name}!", actualText);

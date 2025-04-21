@@ -14,8 +14,8 @@ Scenario: Give a rating on chat as customer
 Scenario: Enter chat as support
     Given I am logged in as "support2"
     And I am on the support dashboard page
-    When I click the chat icon for the row with the email "email@email.email"
-    Then I should redirect to the chat page for customer with "Firstname Lastname" name 
+    When I click the chat icon for the row with the email "isabella.wilson@example.com"
+    Then I should redirect to the chat page for customer with "Isabella Wilson" name 
 
 Scenario: Write chat message as support
     Given I am logged in as "support2"
