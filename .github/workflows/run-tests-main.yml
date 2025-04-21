@@ -64,7 +64,7 @@ jobs:
         run: |
           cd formbridge-main/client
           nohup npm install
-          nohup npm start > react-server.log 2>&1 &
+          nohup npm run dev > react-server.log 2>&1 &
           sleep 5
           cat react-server.log || true
       - name: Install wait-on
