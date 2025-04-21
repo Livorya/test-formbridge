@@ -35,6 +35,7 @@ public class ScenarioSteps
     public async Task GivenIAmOnTheLoginPage()
     {
         await _page.GotoAsync("http://localhost:5173/login");
+        await _page.WaitForSelectorAsync("input[name='email']");
     }
 
     [When(@"I enter ""(.*)"" as the email")]
