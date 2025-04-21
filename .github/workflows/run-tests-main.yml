@@ -60,5 +60,11 @@ jobs:
         run: cd E2ETesting-main && pwsh bin/Debug/net8.0/playwright.ps1 install --with-deps
       - name: Start server
         run: cd formbridge-main/server && nohup dotnet run &
+      - name: Start client
+        run: cd formbridge-main/client && nohup npm install && nohup npm start &
+      - name: Install wait-on
+        run: npm install -g wait-on
+      - name: Wait for frontend to be ready
+        run: wait-on http://localhost:5173
       - name: Run GUI-tests
         run: cd E2ETesting-main && dotnet test
