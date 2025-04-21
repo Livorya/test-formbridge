@@ -208,7 +208,7 @@ public class ScenarioSteps
     [Given(@"I am on the chat page")]
     public async Task GivenIAmOnTheChatPage()
     {
-        await _page.GotoAsync("http://localhost:5173/chat/14");
+        await _page.GotoAsync("http://localhost:5173/chat/9");
     }
 
     [When(@"I enter ""(.*)"" as the chat message")]
