@@ -61,7 +61,12 @@ jobs:
       - name: Start server
         run: cd formbridge-main/server && nohup dotnet run &
       - name: Start client
-        run: cd formbridge-main/client && nohup npm install && nohup npm start &
+        run: |
+          cd formbridge-main/client
+          nohup npm install
+          nohup npm start > react-server.log 2>&1 &
+          sleep 5
+          cat react-server.log || true
       - name: Install wait-on
         run: npm install -g wait-on
       - name: Wait for frontend to be ready
